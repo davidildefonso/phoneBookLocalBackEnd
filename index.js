@@ -1,10 +1,12 @@
 const { response } = require("express");
 const express = require("express");
 const morgan = require('morgan');
-
+const cors = require('cors');
 const app = express();
 
 app.use(express.json());
+
+app.use(cors());
 
 morgan.token('reqBody', (req, res) => JSON.stringify(req.body));
 
@@ -65,6 +67,8 @@ app.get("/api/persons/:id",(request,response)=>{
 });
 
 app.delete("/api/persons/:id",(request,response)=>{
+  console.log("params ",request.params)
+  console.log("body :",request.body)
   const id=Number(request.params.id);
   persons=persons.filter(person=>person.id!==id);
   
@@ -104,10 +108,29 @@ app.post("/api/persons",(request,response)=>{
     id: generateID()
   }
 
+  console.log(person)
+
   persons=persons.concat(person);
   
   response.json(person);
 });
+
+
+app.put("/api/persons/:id",(request,response)=>{
+  console.log("params ",request.params)
+  console.log("body :",request.body)
+  const id=Number(request.params.id);
+  persons=persons.map(person=>person.id!==id
+    ?person
+    :{...request.body,id:id})
+  response.json({...request.body,id:id});
+  console.log("response ",{...request.body,id:id})
+  console.log("persons ",persons)
+});
+
+
+
+
 
 const PORT = 3001;
 app.listen(PORT,()=>{
